@@ -1,8 +1,11 @@
 # SemGuS
 
-EECS 700 Special Topics: Program Synthesis
+EECS 700 Special Topics: Program Synthesis 
+
 Fall 2023
+
 Instructor: Dr. Sankha Guria
+
 TEAM 15: Aidan Liang & Aidan Schmelzle
 
 In this repository, you will find our Python reimplementation of the semantics-guided synthesis (SemGuS) solver described in the paper led by Jinwoo Kim. 
