@@ -6,7 +6,7 @@ Fall 2023
 
 Instructor: Dr. Sankha Guria
 
-TEAM 15: Aidan Liang & Aidan Schmelzle
+TEAM 15: Aiden Liang & Aidan Schmelzle
 
 In this repository, you will find our Python reimplementation of the semantics-guided synthesis (SemGuS) solver described in the paper led by Jinwoo Kim. 
 
