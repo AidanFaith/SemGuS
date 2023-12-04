@@ -1,6 +1,7 @@
 import random
 # Other imports like Z3, if necessary
 
+
 def generate_dynamic_program():
     # Templates for various ways to flip bits in a bit vector
     templates = [
@@ -20,8 +21,8 @@ def generate_dynamic_program():
     return program, program_str
 
 # Generate a dynamic program
-dynamic_program, program_code = generate_dynamic_program()
-print("Generated Program Code:", program_code)
+# dynamic_program, program_code = generate_dynamic_program()
+# print("Generated Program Code:", program_code)
 
 def parse_specification(spec):
     # Split the specification into function part and mapping part
@@ -38,6 +39,7 @@ def parse_specification(spec):
     if '(' in func_part and ')' in func_part:
         condition = func_part.split('(')[1].split(')')[0]
         # Check if the condition contains an equality check
+        print(f"condition: {condition}")
         if '==' in condition:
             condition_var, condition_value = condition.split(' == ')
             condition_value = eval(condition_value.strip())
@@ -45,6 +47,7 @@ def parse_specification(spec):
     # Parse the mapping part
     output_value = eval(map_part.strip())
 
+    print(f"condition var/val: {condition_var}, {condition_value}")
     # Construct and return the parsed specification
     parsed_spec = {
         'function': func_name,
@@ -53,13 +56,17 @@ def parse_specification(spec):
     }
     return parsed_spec
 
-
-
-
-
 def evaluate_program(program, spec, test_cases):
     # Initial score
     score = 0
+
+    for input_vector, expected_output_vector in test_cases:
+        program_output = program(input_vector)
+        if program_output == expected_output_vector:
+            score += 1
+
+    return score
+
 
     # Extract condition and expected output from specification
     condition_value = spec['condition']['x']
@@ -68,8 +75,10 @@ def evaluate_program(program, spec, test_cases):
     # Iterate over test cases
     for input_vector, _ in test_cases:
         # Check if input_vector meets the specification condition
+        # print(condition_value)
         if input_vector == condition_value:
             output = program(input_vector)
+            # print(f"input: {input_vector} | output: {output}")
             # Increase score if output matches the expected output
             if output == expected_output:
                 score += 1
@@ -85,12 +94,12 @@ def synthesize_program(specification, test_cases):
     # Define a simple convergence condition (e.g., a fixed number of iterations)
     for _ in range(100):  # Example: 100 iterations
         program = generate_dynamic_program()
-        score = evaluate_program(program, spec, test_cases)
+        score = evaluate_program(program[0], spec, test_cases)
         if score > best_score:
             best_program = program
             best_score = score
 
-    return best_program
+    return best_program, best_score
 
 # Example usage
 specification = "flipBit(x), x == [0, 1, 0] -> [1, 0, 1]"
@@ -110,10 +119,10 @@ test_cases = [
     # ... any additional test cases you wish to add
 ]
 
-result_program, result_program_code = synthesize_program(specification, test_cases)
-print("Result Program Code:", result_program_code)
-print("Result from Program:", result_program([0, 1, 0]))
 
+# result_program, result_program_code = synthesize_program(specification, test_cases)
+# print("Result Program Code:", result_program_code)
+# print("Result from Program:", result_program([0, 1, 0]))
 
 
 
