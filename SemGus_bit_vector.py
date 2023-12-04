@@ -1,6 +1,4 @@
 import random
-# Other imports like Z3, if necessary
-
 
 def generate_dynamic_program():
     # Templates for various ways to flip bits in a bit vector
@@ -35,19 +33,27 @@ def parse_specification(spec):
     condition_var = 'x'  # Default condition variable
     condition_value = None
 
-    # Check if there is a condition in the specification
-    if '(' in func_part and ')' in func_part:
-        condition = func_part.split('(')[1].split(')')[0]
-        # Check if the condition contains an equality check
-        print(f"condition: {condition}")
-        if '==' in condition:
-            condition_var, condition_value = condition.split(' == ')
-            condition_value = eval(condition_value.strip())
+    # Find the condition part using a more sophisticated method
+    try:
+        # Extract everything after the comma and before the arrow
+        condition_str = func_part.split(',', 1)[1].split('->')[0].strip()
+        if '==' in condition_str:
+            condition_var, condition_value_str = condition_str.split('==')
+            condition_var = condition_var.strip()
+            condition_value_str = condition_value_str.strip()
+            # Evaluate the condition value safely
+            condition_value = eval(condition_value_str)
+        else:
+            print("Equality operator '==' not found in condition.")
+    except Exception as e:
+        print(f"Error parsing condition: {e}")
 
     # Parse the mapping part
-    output_value = eval(map_part.strip())
+    try:
+        output_value = eval(map_part.strip())
+    except Exception as e:
+        print(f"Error evaluating output value: {e}")
 
-    print(f"condition var/val: {condition_var}, {condition_value}")
     # Construct and return the parsed specification
     parsed_spec = {
         'function': func_name,
@@ -56,17 +62,10 @@ def parse_specification(spec):
     }
     return parsed_spec
 
+
 def evaluate_program(program, spec, test_cases):
     # Initial score
     score = 0
-
-    for input_vector, expected_output_vector in test_cases:
-        program_output = program(input_vector)
-        if program_output == expected_output_vector:
-            score += 1
-
-    return score
-
 
     # Extract condition and expected output from specification
     condition_value = spec['condition']['x']
@@ -75,10 +74,8 @@ def evaluate_program(program, spec, test_cases):
     # Iterate over test cases
     for input_vector, _ in test_cases:
         # Check if input_vector meets the specification condition
-        # print(condition_value)
         if input_vector == condition_value:
             output = program(input_vector)
-            # print(f"input: {input_vector} | output: {output}")
             # Increase score if output matches the expected output
             if output == expected_output:
                 score += 1
@@ -90,19 +87,25 @@ def synthesize_program(specification, test_cases):
     spec = parse_specification(specification)
     best_program = None
     best_score = float('-inf')
+    best_program_code = None  # To store the code of the best program
 
     # Define a simple convergence condition (e.g., a fixed number of iterations)
     for _ in range(100):  # Example: 100 iterations
-        program = generate_dynamic_program()
-        score = evaluate_program(program[0], spec, test_cases)
+        program_tuple = generate_dynamic_program()  # Receive a tuple
+        program = program_tuple[0]  # Extract the lambda function
+        program_code = program_tuple[1]  # Extract the program code
+
+        score = evaluate_program(program, spec, test_cases)
         if score > best_score:
             best_program = program
             best_score = score
+            best_program_code = program_code  # Store the best program code
 
-    return best_program, best_score
+    return best_program, best_program_code  # Return both the function and its code
+
 
 # Example usage
-specification = "flipBit(x), x == [0, 1, 0] -> [1, 0, 1]"
+specification = "flipBit(x), x == [0,1,0] -> [1,0,1]"
 test_cases = [
     ([0, 1, 0], [1, 0, 1]),
     ([0, 1, 0, 1, 0], [1, 0, 1, 0, 1]),
@@ -119,10 +122,19 @@ test_cases = [
     # ... any additional test cases you wish to add
 ]
 
+# Testing the function with the specification
+specification = "flipBit(x), x == [0,1,0] -> [1,0,1]"
+parsed_spec = parse_specification(specification)
+print(parsed_spec)
 
-# result_program, result_program_code = synthesize_program(specification, test_cases)
-# print("Result Program Code:", result_program_code)
-# print("Result from Program:", result_program([0, 1, 0]))
+
+result_program, result_program_code = synthesize_program(specification, test_cases)
+print("Result Program Code:", result_program_code)
+print("Result from Program:", result_program([0, 0, 1, 0]))
+
+
+
+
 
 
 
