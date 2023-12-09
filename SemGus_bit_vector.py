@@ -3,10 +3,14 @@ import random
 def generate_dynamic_program():
     # Templates for various ways to flip bits in a bit vector
     templates = [
-        "lambda x: [~bit & 1 for bit in x]",  # Corrected to flip bits
-        "lambda x: [1 - bit for bit in x]",   # Correctly flips bits
-        "lambda x: [bit ^ 1 for bit in x]",   # Using XOR to flip bits
-        "lambda x: [0 if bit else 1 for bit in x]"  # Conditional flipping
+        "lambda x: [~bit & 1 for bit in x]",            # Corrected to flip bits
+        "lambda x: [1 - bit for bit in x]",             # Correctly flips bits
+        "lambda x: [bit ^ 1 for bit in x]",             # Using XOR to flip bits
+        "lambda x: [0 if bit else 1 for bit in x]",     # Conditional flipping
+        "lambda x: [int(not bit) for bit in x]",        # list comprehension with not operator
+        "lambda x: [(-bit - 1) & 1 for bit in x]",      # bitwise NOT and limiting to 1 bit
+        "lambda x: list(map(lambda bit: 1 if bit == 0 else 0, x))",  # map function with a lambda expression
+        "lambda x: [(bit | 1) & ~(bit & 1) for bit in x]"            # bitwise OR and AND
     ]
 
     selected_template = random.choice(templates)
