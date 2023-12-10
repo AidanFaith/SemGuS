@@ -93,17 +93,22 @@ def synthesize_program(specification, test_cases):
     best_score = float('-inf')
     best_program_code = None  # To store the code of the best program
 
+    generated_program_codes = set()  # Set to store generated program codes
+
     # Define a simple convergence condition (e.g., a fixed number of iterations)
     for _ in range(100):  # Example: 100 iterations
         program_tuple = generate_dynamic_program()  # Receive a tuple
         program = program_tuple[0]  # Extract the lambda function
         program_code = program_tuple[1]  # Extract the program code
 
-        score = evaluate_program(program, spec, test_cases)
-        if score > best_score:
-            best_program = program
-            best_score = score
-            best_program_code = program_code  # Store the best program code
+        # Check if the program code is already generated
+        if program_code not in generated_program_codes:
+            generated_program_codes.add(program_code)  # Add new program code to the set
+            score = evaluate_program(program, spec, test_cases)
+            if score > best_score:
+                best_program = program
+                best_score = score
+                best_program_code = program_code  # Store the best program code
 
     return best_program, best_program_code  # Return both the function and its code
 
@@ -134,7 +139,7 @@ print(parsed_spec)
 
 result_program, result_program_code = synthesize_program(specification, test_cases)
 print("Result Program Code:", result_program_code)
-print("Result from Program:", result_program([0, 0, 1, 0]))
+print("Result from Program:", result_program([0, 1, 1, 0]))
 
 
 
