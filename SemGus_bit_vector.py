@@ -79,16 +79,23 @@ def evaluate_program(program, spec, test_cases):
     for input_vector, _ in test_cases:
         # Check if input_vector meets the specification condition
         if input_vector == condition_value:
-            output = program(input_vector)
-            # Increase score if output matches the expected output
-            if output == expected_output:
-                score += 1
-
+            try:
+                output = program(input_vector)
+                # Increase score if output matches the expected output
+                if output == expected_output:
+                    score += 1
+            except Exception as e:
+                print(f"Error evaluating program with input {input_vector}: {e}")
     return score
 
 
 def synthesize_program(specification, test_cases):
-    spec = parse_specification(specification)
+    try:
+        spec = parse_specification(specification)
+    except Exception as e:
+        print(f"Error parsing specification: {e}")
+        return None, None
+    
     best_program = None
     best_score = float('-inf')
     best_program_code = None  # To store the code of the best program
